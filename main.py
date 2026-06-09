@@ -7,6 +7,10 @@ from fastapi.responses import (
     Response,
 )
 
+from app.api.admin import (
+    router as admin_router,
+)
+
 from app.core.config import (
     settings,
 )
@@ -62,6 +66,10 @@ app.include_router(
 
 app.add_middleware(
     AuthMiddleware
+)
+
+app.include_router(
+    admin_router
 )
 
 

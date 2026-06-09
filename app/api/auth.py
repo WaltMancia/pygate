@@ -11,6 +11,11 @@ from app.core.security import (
     create_access_token,
 )
 
+from app.core.permissions import (
+    ADMIN_PERMISSIONS,
+    VIEWER_PERMISSIONS,
+)
+
 router = APIRouter(
     prefix="/auth",
     tags=["Auth"],
@@ -30,26 +35,20 @@ async def login(
 ):
 
     if (
-        data.username == "admin"
+        data.username == "viewer"
         and
-        data.password == "admin123"
+        data.password == "viewer123"
     ):
 
-        token = (
-            create_access_token(
-                user_id=1,
-                username="admin",
-            )
+        token = create_access_token(
+            user_id=2,
+            username="viewer",
+            role="viewer",
+            permissions=VIEWER_PERMISSIONS,
         )
 
-        return {
-            "access_token":
-                token
-        }
-
     return {
-        "message":
-        "Invalid credentials"
+        "access_token": token
     }
 
 

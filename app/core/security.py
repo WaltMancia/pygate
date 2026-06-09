@@ -17,6 +17,8 @@ def create_access_token(
     payload = {
         "sub": str(user_id),
         "username": username,
+        "role": role,
+        "permissions": permissions,
         "exp": datetime.utcnow()
         + timedelta(hours=8),
     }
