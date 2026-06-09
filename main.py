@@ -32,6 +32,14 @@ from app.api.health import (
     router as health_router,
 )
 
+from app.api.auth import (
+    router as auth_router
+)
+
+from app.middleware.auth_middleware import (
+    AuthMiddleware
+)
+
 
 configure_logging()
 
@@ -46,6 +54,14 @@ app.include_router(
 app.add_exception_handler(
     Exception,
     generic_exception_handler,
+)
+
+app.include_router(
+    auth_router
+)
+
+app.add_middleware(
+    AuthMiddleware
 )
 
 
