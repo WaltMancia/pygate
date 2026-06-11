@@ -1,10 +1,22 @@
 from fastapi import (
     APIRouter,
-    Request
+    HTTPException,
 )
 
 from pydantic import (
     BaseModel,
+)
+
+from app.db.session import (
+    SessionLocal,
+)
+
+from app.repositories.user_repository import (
+    UserRepository,
+)
+
+from app.core.passwords import (
+    verify_password,
 )
 
 from app.core.security import (
@@ -34,26 +46,49 @@ async def login(
     data: LoginRequest,
 ):
 
-    if (
-        data.username == "viewer"
-        and
-        data.password == "viewer123"
-    ):
+    db = SessionLocal()
 
-        token = create_access_token(
-            user_id=2,
-            username="viewer",
-            role="viewer",
-            permissions=VIEWER_PERMISSIONS,
+    try:
+
+        repo = UserRepository(db)
+
+        user = repo.get_by_username(
+            data.username
         )
 
-    return {
-        "access_token": token
-    }
+        if not user:
 
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid credentials",
+            )
 
-@router.get("/me")
-async def me(
-    request: Request
-):
-    return request.state.user
+        if not verify_password(
+            data.password,
+            user.password_hash,
+        ):
+
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid credentials",
+            )
+
+        permissions = (
+            ADMIN_PERMISSIONS
+            if user.role == "admin"
+            else VIEWER_PERMISSIONS
+        )
+
+        token = create_access_token(
+            user_id=user.id,
+            username=user.username,
+            role=user.role,
+            permissions=permissions,
+        )
+
+        return {
+            "access_token": token
+        }
+
+    finally:
+        db.close()
