@@ -1,6 +1,7 @@
 from sqlalchemy import (
     Integer,
     String,
+    ForeignKey,
 )
 
 from sqlalchemy.orm import (
@@ -31,7 +32,7 @@ class User(Base):
         nullable=False,
     )
 
-    role: Mapped[str] = mapped_column(
-        String(50),
+    role_id: Mapped[int] = mapped_column(
+        ForeignKey("roles.id"),
         nullable=False,
     )
