@@ -5,7 +5,7 @@ from sqlalchemy.orm import (
 )
 
 DATABASE_URL = (
-    "mysql+pymysql://root:root@localhost/pygate"
+    "mysql+pymysql://root:123$@localhost/pygate"
 )
 
 engine = create_engine(
