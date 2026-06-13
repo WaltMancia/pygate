@@ -27,13 +27,13 @@ class UserRepository:
         self,
         username: str,
         password_hash: str,
-        role: str,
+        role_id: int,
     ):
 
         user = User(
             username=username,
             password_hash=password_hash,
-            role=role,
+            role_id=role_id,
         )
 
         self.db.add(user)
