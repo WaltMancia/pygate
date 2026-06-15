@@ -12,9 +12,16 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: str = "development"
 
+    JWT_SECRET: str
+
+    JWT_ALGORITHM: str
+
+    JWT_EXPIRE_MINUTES: int = 60
+
     model_config = (
         SettingsConfigDict(
-            env_file=".env"
+            env_file=".env",
+            extra="ignore",
         )
     )
 
