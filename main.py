@@ -44,6 +44,10 @@ from app.middleware.auth_middleware import (
     AuthMiddleware
 )
 
+from app.api.routes.auth import (
+    router as auth_router,
+)
+
 
 configure_logging()
 
@@ -70,6 +74,10 @@ app.add_middleware(
 
 app.include_router(
     admin_router
+)
+
+app.include_router(
+    auth_router
 )
 
 
