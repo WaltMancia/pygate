@@ -41,9 +41,7 @@ class AuthService:
         ):
             return None
 
-        token = create_access_token(
+        return create_access_token(
             user.id,
             user.username,
         )
-
-        return token

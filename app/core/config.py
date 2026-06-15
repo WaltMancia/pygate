@@ -12,9 +12,9 @@ class Settings(BaseSettings):
 
     ENVIRONMENT: str = "development"
 
-    JWT_SECRET: str
+    JWT_SECRET: str = "super-secret-key"
 
-    JWT_ALGORITHM: str
+    JWT_ALGORITHM: str = "HS256"
 
     JWT_EXPIRE_MINUTES: int = 60
 

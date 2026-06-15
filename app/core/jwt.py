@@ -19,7 +19,7 @@ def create_access_token(
     expire = (
         datetime.now(UTC)
         + timedelta(
-            minutes=settings.jwt_expire_minutes
+            minutes=settings.JWT_EXPIRE_MINUTES
         )
     )
 
@@ -31,6 +31,6 @@ def create_access_token(
 
     return jwt.encode(
         payload,
-        settings.jwt_secret,
-        algorithm=settings.jwt_algorithm,
+        settings.JWT_SECRET,
+        algorithm=settings.JWT_ALGORITHM,
     )
