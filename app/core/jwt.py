@@ -6,6 +6,10 @@ from datetime import (
 
 import jwt
 
+from jwt import (
+    InvalidTokenError,
+)
+
 from app.core.config import (
     settings,
 )
@@ -34,3 +38,22 @@ def create_access_token(
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
+
+
+def decode_token(
+    token: str,
+):
+
+    try:
+
+        return jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=[
+                settings.JWT_ALGORITHM
+            ],
+        )
+
+    except InvalidTokenError:
+
+        return None
