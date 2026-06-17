@@ -51,6 +51,10 @@ from app.api.routes.auth import (
     router as auth_router,
 )
 
+from app.middleware.rate_limit import (
+    RateLimitMiddleware,
+)
+
 
 configure_logging()
 
@@ -85,6 +89,10 @@ app.include_router(
 
 app.include_router(
     admin_router
+)
+
+app.add_middleware(
+    RateLimitMiddleware
 )
 
 
