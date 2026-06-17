@@ -7,6 +7,10 @@ from app.dependencies.permissions import (
     require_permission,
 )
 
+from app.api.dependencies.rate_limit import (
+    rate_limit,
+)
+
 router = APIRouter(
     prefix="/admin",
     tags=["Admin"],
@@ -39,3 +43,21 @@ async def create_user(
         "message":
         "User created"
     }
+
+
+@router.get(
+    "/test"
+)
+def admin_test(
+    current_user=Depends(
+        require_role(
+            "admin"
+        )
+    ),
+    _=Depends(
+        rate_limit(
+            limit=5,
+            window=60,
+        )
+    ),
+):
