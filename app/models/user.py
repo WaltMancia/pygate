@@ -7,6 +7,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
+    relationship,
 )
 
 from app.db.base import Base
@@ -35,4 +36,9 @@ class User(Base):
     role_id: Mapped[int] = mapped_column(
         ForeignKey("roles.id"),
         nullable=False,
+    )
+
+    role = relationship(
+        "Role",
+        lazy="joined",
     )

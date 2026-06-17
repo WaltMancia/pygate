@@ -19,6 +19,14 @@ from app.services.auth_service import (
     AuthService,
 )
 
+from app.api.dependencies.auth import (
+    get_current_user,
+)
+
+from app.models.user import (
+    User,
+)
+
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
@@ -52,4 +60,20 @@ def login(
 
     return {
         "access_token": token
+    }
+
+
+@router.get(
+    "/me"
+)
+def me(
+    current_user: User = Depends(
+        get_current_user
+    ),
+):
+
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "role_id": current_user.role_id,
     }

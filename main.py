@@ -1,3 +1,6 @@
+from app.api.routes.admin import (
+    router as admin_router,
+)
 from fastapi import (
     FastAPI,
     Request,
@@ -78,6 +81,10 @@ app.include_router(
 
 app.include_router(
     auth_router
+)
+
+app.include_router(
+    admin_router
 )
 
 
