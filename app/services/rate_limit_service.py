@@ -37,3 +37,23 @@ class RateLimitService:
         )
 
         return True
+
+
+@staticmethod
+def get_remaining(
+    key: str,
+    limit: int,
+):
+
+    current = redis_client.get(
+        key
+    )
+
+    if current is None:
+
+        return limit
+
+    return max(
+        0,
+        limit - int(current)
+    )

@@ -46,8 +46,47 @@ class RateLimitMiddleware(
                     "detail":
                     "Rate limit exceeded"
                 },
+                headers={
+                    "X-RateLimit-Limit":
+                        str(DEFAULT_RATE_LIMIT),
+                    "X-RateLimit-Remaining":
+                        "0",
+                },
             )
 
-        return await call_next(
+        response = await call_next(
             request
         )
+
+        remaining = (
+            RateLimitService.get_remaining(
+                key,
+                DEFAULT_RATE_LIMIT,
+            )
+        )
+
+        ttl = (
+            RateLimitService.get_ttl(
+                key
+            )
+        )
+
+        response.headers[
+            "X-RateLimit-Limit"
+        ] = str(
+            DEFAULT_RATE_LIMIT
+        )
+
+        response.headers[
+            "X-RateLimit-Remaining"
+        ] = str(
+            remaining
+        )
+
+        response.headers[
+            "X-RateLimit-Reset"
+        ] = str(
+            ttl
+        )
+
+        return response
