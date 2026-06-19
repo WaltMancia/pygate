@@ -7,6 +7,10 @@ from app.api.dependencies.rbac import (
     require_role,
 )
 
+from app.services.upstream_service import (
+    UpstreamServiceManager,
+)
+
 router = APIRouter(
     prefix="/admin",
     tags=["Admin"],
@@ -28,3 +32,14 @@ def admin_test(
         "message": "Admin access granted",
         "user": current_user.username,
     }
+
+
+@router.get(
+    "/services"
+)
+def services():
+
+    return (
+        UpstreamServiceManager
+        .list_services()
+    )
