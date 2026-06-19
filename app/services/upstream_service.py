@@ -2,6 +2,10 @@ from app.core.upstreams import (
     UPSTREAM_SERVICES,
 )
 
+from app.services.load_balancer import (
+    RoundRobinBalancer,
+)
+
 
 class UpstreamServiceManager:
 
@@ -11,7 +15,8 @@ class UpstreamServiceManager:
     ):
 
         return (
-            UPSTREAM_SERVICES.get(
+            RoundRobinBalancer
+            .next_instance(
                 service_name
             )
         )
