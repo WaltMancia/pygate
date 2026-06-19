@@ -55,6 +55,10 @@ from app.middleware.rate_limit import (
     RateLimitMiddleware,
 )
 
+from app.api.routes.proxy import (
+    router as proxy_router,
+)
+
 
 configure_logging()
 
@@ -93,6 +97,10 @@ app.include_router(
 
 app.add_middleware(
     RateLimitMiddleware
+)
+
+app.include_router(
+    proxy_router
 )
 
 
