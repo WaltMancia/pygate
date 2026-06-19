@@ -11,6 +11,10 @@ from app.services.upstream_service import (
     UpstreamServiceManager,
 )
 
+from app.services.proxy_service import (
+    ProxyService,
+)
+
 router = APIRouter(
     prefix="/admin",
     tags=["Admin"],
@@ -43,3 +47,17 @@ def services():
         UpstreamServiceManager
         .list_services()
     )
+
+
+@router.get(
+    "/health-check"
+)
+async def health_check():
+
+    response = (
+        await ProxyService.get(
+            "https://httpbin.org/get"
+        )
+    )
+
+    return response.json()
