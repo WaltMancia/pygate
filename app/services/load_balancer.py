@@ -1,7 +1,7 @@
 from collections import defaultdict
 
-from app.core.upstreams import (
-    UPSTREAM_SERVICES,
+from app.services.service_registry import (
+    ServiceRegistry,
 )
 
 
@@ -16,7 +16,8 @@ class RoundRobinBalancer:
     ):
 
         instances = (
-            UPSTREAM_SERVICES.get(
+            ServiceRegistry
+            .get_instances(
                 service_name
             )
         )

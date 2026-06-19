@@ -1,3 +1,7 @@
+from app.services.service_registry import (
+    ServiceRegistry,
+)
+
 UPSTREAM_SERVICES = {
     "users": [
         "http://localhost:8001",
@@ -11,3 +15,15 @@ UPSTREAM_SERVICES = {
         "http://localhost:8003",
     ],
 }
+
+for (
+    service,
+    instances
+) in (
+    UPSTREAM_SERVICES.items()
+):
+
+    ServiceRegistry.set_health(
+        service,
+        instances,
+    )
