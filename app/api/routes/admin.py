@@ -15,6 +15,14 @@ from app.services.proxy_service import (
     ProxyService,
 )
 
+from app.core.upstreams import (
+    UPSTREAM_SERVICES,
+)
+
+from app.services.proxy_service import (
+    ProxyService,
+)
+
 router = APIRouter(
     prefix="/admin",
     tags=["Admin"],
@@ -61,3 +69,44 @@ async def health_check():
     )
 
     return response.json()
+
+
+@router.get(
+    "/health"
+)
+async def upstream_health():
+
+    result = {}
+
+    for (
+        service,
+        instances
+    ) in (
+        UPSTREAM_SERVICES.items()
+    ):
+
+        result[
+            service
+        ] = []
+
+        for instance in instances:
+
+            alive = (
+                await ProxyService
+                .health_check(
+                    instance
+                )
+            )
+
+            result[
+                service
+            ].append(
+                {
+                    "url":
+                    instance,
+                    "healthy":
+                    alive,
+                }
+            )
+
+    return result
