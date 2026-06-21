@@ -59,6 +59,10 @@ from app.api.routes.proxy import (
     router as proxy_router,
 )
 
+from app.middleware.request_logger import (
+    RequestLoggerMiddleware,
+)
+
 
 configure_logging()
 
@@ -101,6 +105,10 @@ app.add_middleware(
 
 app.include_router(
     proxy_router
+)
+
+app.add_middleware(
+    RequestLoggerMiddleware
 )
 
 
