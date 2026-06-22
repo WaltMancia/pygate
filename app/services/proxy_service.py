@@ -6,14 +6,18 @@ from app.core.http_client import (
 class ProxyService:
 
     @staticmethod
-    async def get(
+    async def forward(
+        method: str,
         url: str,
+        headers=None,
+        body=None,
     ):
 
-        response = (
-            await http_client.get(
-                url
-            )
+        response = await http_client.request(
+            method=method,
+            url=url,
+            headers=headers,
+            content=body,
         )
 
         return response
@@ -25,10 +29,8 @@ class ProxyService:
 
         try:
 
-            response = (
-                await http_client.get(
-                    f"{url}/health"
-                )
+            response = await http_client.get(
+                f"{url}/health"
             )
 
             return (
