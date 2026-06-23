@@ -1,9 +1,13 @@
+import time
+import uuid
+
 from starlette.middleware.base import (
     BaseHTTPMiddleware,
 )
-import uuid
-import time
-request_logger.py
+
+from app.core.logger import (
+    logger,
+)
 
 
 class RequestLoggerMiddleware(
@@ -35,12 +39,15 @@ class RequestLoggerMiddleware(
             2,
         )
 
-        print(
-            f"[{trace_id}] "
-            f"{request.method} "
-            f"{request.url.path} "
-            f"{response.status_code} "
-            f"{duration}ms"
+        logger.info(
+            {
+                "trace_id": trace_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status": response.status_code,
+                "latency_ms": duration,
+                "client_ip": request.client.host,
+            }
         )
 
         response.headers[

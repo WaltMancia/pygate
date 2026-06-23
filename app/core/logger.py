@@ -1,18 +1,38 @@
 import logging
+import json
 
 
-def configure_logging():
+class JsonFormatter(
+    logging.Formatter
+):
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format=(
-            "%(asctime)s | "
-            "%(levelname)s | "
-            "%(message)s"
-        ),
-    )
+    def format(
+        self,
+        record,
+    ):
+
+        return json.dumps(
+            {
+                "level": record.levelname,
+                "message": record.getMessage(),
+            }
+        )
 
 
 logger = logging.getLogger(
     "pygate"
+)
+
+logger.setLevel(
+    logging.INFO
+)
+
+handler = logging.StreamHandler()
+
+handler.setFormatter(
+    JsonFormatter()
+)
+
+logger.addHandler(
+    handler
 )
