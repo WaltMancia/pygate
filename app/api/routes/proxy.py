@@ -14,6 +14,10 @@ from app.services.proxy_service import (
     ProxyService,
 )
 
+from app.services.circuit_breaker import (
+    CircuitBreaker,
+)
+
 router = APIRouter(
     prefix="/proxy",
     tags=["Proxy"],
@@ -72,6 +76,13 @@ async def proxy_request(
             status_code=404,
             detail="Service not found",
         )
+    if CircuitBreaker.is_open(
+        service
+    ):
+        raise HTTPException(
+            status_code=503,
+            detail="Circuit breaker open",
+        )
 
     body = await request.body()
 
@@ -99,6 +110,17 @@ async def proxy_request(
         raise HTTPException(
             status_code=404,
             detail="Service not found",
+        )
+    if response.status_code >= 500:
+
+        CircuitBreaker.record_failure(
+            service
+        )
+
+    else:
+
+        CircuitBreaker.record_success(
+            service
         )
 
     response = (
