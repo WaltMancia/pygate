@@ -18,6 +18,10 @@ from app.services.circuit_breaker import (
     CircuitBreaker,
 )
 
+from app.services.cache_service import (
+    CacheService,
+)
+
 router = APIRouter(
     prefix="/proxy",
     tags=["Proxy"],
@@ -84,6 +88,26 @@ async def proxy_request(
             detail="Circuit breaker open",
         )
 
+    cache_key = (
+        f"{service}:{path}"
+    )
+
+    cached = (
+        CacheService.get(
+            cache_key
+        )
+    )
+
+    if (
+        request.method == "GET"
+        and cached
+    ):
+
+        return Response(
+            content=cached,
+            media_type="application/json",
+        )
+
     body = await request.body()
 
     response = (
@@ -121,6 +145,16 @@ async def proxy_request(
 
         CircuitBreaker.record_success(
             service
+        )
+
+    if (
+        request.method == "GET"
+        and response.status_code == 200
+    ):
+
+        CacheService.set(
+            cache_key,
+            response.text,
         )
 
     response = (
