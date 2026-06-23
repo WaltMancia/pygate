@@ -1,17 +1,19 @@
-from fastapi.responses import (
-    Response,
-)
 from fastapi import (
     APIRouter,
+    Request,
     HTTPException,
 )
 
-from app.services.upstream_service import (
-    UpstreamServiceManager,
+from fastapi.responses import (
+    Response,
 )
 
 from app.services.proxy_service import (
     ProxyService,
+)
+
+from app.services.upstream_service import (
+    UpstreamServiceManager,
 )
 
 from app.services.circuit_breaker import (
@@ -22,30 +24,9 @@ from app.services.cache_service import (
     CacheService,
 )
 
-router = APIRouter(
-    prefix="/proxy",
-    tags=["Proxy"],
+from app.services.metrics_service import (
+    MetricsService,
 )
-
-
-@router.get(
-    "/{service}"
-)
-async def proxy_get(
-    service: str,
-):
-
-    upstream = (
-        UpstreamServiceManager
-        .get_service(
-            service
-        )
-    )from fastapi import (
-        APIRouter,
-        Request,
-        HTTPException,
-    )
-
 
 router = APIRouter(
     prefix="/proxy",
@@ -69,6 +50,8 @@ async def proxy_request(
     request: Request,
 ):
 
+    MetricsService.increment_requests()
+
     upstream = (
         UpstreamServiceManager
         .get_service(service)
@@ -80,9 +63,11 @@ async def proxy_request(
             status_code=404,
             detail="Service not found",
         )
+
     if CircuitBreaker.is_open(
         service
     ):
+
         raise HTTPException(
             status_code=503,
             detail="Circuit breaker open",
@@ -92,49 +77,53 @@ async def proxy_request(
         f"{service}:{path}"
     )
 
-    cached = (
-        CacheService.get(
-            cache_key
-        )
-    )
+    if request.method == "GET":
 
-    if (
-        request.method == "GET"
-        and cached
-    ):
-
-        return Response(
-            content=cached,
-            media_type="application/json",
+        cached = (
+            CacheService.get(
+                cache_key
+            )
         )
+
+        if cached:
+
+            MetricsService.increment_cache_hit()
+
+            return Response(
+                content=cached,
+                media_type="application/json",
+            )
+
+        MetricsService.increment_cache_miss()
 
     body = await request.body()
 
-    response = (
-        await ProxyService.forward(
-            method=request.method,
-            url=f"{upstream}/{path}",
-            headers=dict(
-                request.headers
-            ),
-            body=body,
+    try:
+
+        response = (
+            await ProxyService.forward(
+                method=request.method,
+                url=f"{upstream}/{path}",
+                headers=dict(
+                    request.headers
+                ),
+                body=body,
+            )
         )
-    )
 
-    return Response(
-        content=response.content,
-        status_code=response.status_code,
-        media_type=response.headers.get(
-            "content-type"
-        ),
-    )
+    except Exception:
 
-    if not upstream:
+        CircuitBreaker.record_failure(
+            service
+        )
 
         raise HTTPException(
-            status_code=404,
-            detail="Service not found",
+            status_code=502,
+            detail="Upstream service unavailable",
         )
+
+    MetricsService.increment_proxied()
+
     if response.status_code >= 500:
 
         CircuitBreaker.record_failure(
@@ -157,10 +146,10 @@ async def proxy_request(
             response.text,
         )
 
-    response = (
-        await ProxyService.get(
-            upstream
-        )
+    return Response(
+        content=response.content,
+        status_code=response.status_code,
+        media_type=response.headers.get(
+            "content-type"
+        ),
     )
-
-    return response.json()
