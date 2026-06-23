@@ -63,6 +63,10 @@ from app.middleware.request_logger import (
     RequestLoggerMiddleware,
 )
 
+from app.api.routes.metrics import (
+    router as metrics_router,
+)
+
 
 configure_logging()
 
@@ -109,6 +113,10 @@ app.include_router(
 
 app.add_middleware(
     RequestLoggerMiddleware
+)
+
+app.include_router(
+    metrics_router
 )
 
 
