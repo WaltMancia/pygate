@@ -1,3 +1,10 @@
+from app.core.prometheus import (
+    REQUEST_COUNTER,
+    CACHE_HITS,
+    CACHE_MISSES,
+)
+
+
 class MetricsService:
 
     requests = 0
