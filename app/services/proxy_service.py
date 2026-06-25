@@ -2,6 +2,10 @@ from app.core.http_client import (
     http_client,
 )
 
+from app.core.request_context import (
+    current_user,
+)
+
 
 class ProxyService:
 
@@ -13,14 +17,31 @@ class ProxyService:
         body=None,
     ):
 
-        response = await http_client.request(
-            method=method,
-            url=url,
-            headers=headers,
-            content=body,
+    user = current_user.get()
+
+    headers = headers or {}
+
+    if user:
+
+        headers["X-User-Id"] = str(
+            user.get("sub")
         )
 
-        return response
+        headers["X-Username"] = (
+            user.get("username")
+        )
+
+        headers["X-Role"] = (
+            user.get("role")
+        )
+    response = await http_client.request(
+        method=method,
+        url=url,
+        headers=headers,
+        content=body,
+    )
+
+    return response
 
     @staticmethod
     async def health_check(

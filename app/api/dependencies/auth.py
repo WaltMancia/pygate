@@ -22,6 +22,10 @@ from app.repositories.user_repository import (
     UserRepository,
 )
 
+from app.core.request_context import (
+    current_user,
+)
+
 security = HTTPBearer()
 
 
@@ -44,6 +48,10 @@ def get_current_user(
             status_code=401,
             detail="Invalid token",
         )
+
+    current_user.set(
+        payload
+    )
 
     username = payload.get(
         "username"
