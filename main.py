@@ -23,6 +23,10 @@ from app.core.logger import (
     logger,
 )
 
+from app.api.routes.prometheus import (
+    router as prometheus_router,
+)
+
 from app.core.exceptions import (
     generic_exception_handler,
 )
@@ -124,6 +128,10 @@ app.include_router(
 
 app.include_router(
     health_router
+)
+
+app.include_router(
+    prometheus_router
 )
 
 
