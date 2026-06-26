@@ -26,6 +26,10 @@ class RequestLoggerMiddleware(
 
         start = time.time()
 
+        request.state.trace_id = (
+            trace_id
+        )
+
         response = await call_next(
             request
         )

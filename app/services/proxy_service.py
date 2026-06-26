@@ -6,6 +6,10 @@ from app.core.request_context import (
     current_user,
 )
 
+from starlette.requests import (
+    Request,
+)
+
 
 class ProxyService:
 
@@ -15,7 +19,14 @@ class ProxyService:
         url: str,
         headers=None,
         body=None,
+        trace_id=None,
     ):
+
+    if trace_id:
+
+        headers[
+            "X-Trace-Id"
+        ] = trace_id
 
     user = current_user.get()
 
