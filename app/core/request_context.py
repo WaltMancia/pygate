@@ -1,6 +1,4 @@
-from contextvars import (
-    ContextVar,
-)
+from contextvars import ContextVar
 
 current_user = ContextVar(
     "current_user",

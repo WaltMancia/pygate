@@ -1,6 +1,7 @@
 from fastapi import (
     Depends,
     HTTPException,
+    status,
 )
 
 from fastapi.security import (
@@ -8,18 +9,8 @@ from fastapi.security import (
     HTTPBearer,
 )
 
-from sqlalchemy.orm import Session
-
-from app.db.session import (
-    get_db,
-)
-
 from app.core.jwt import (
-    decode_token,
-)
-
-from app.repositories.user_repository import (
-    UserRepository,
+    decode_access_token,
 )
 
 from app.core.request_context import (
@@ -33,41 +24,23 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(
         security
     ),
-    db: Session = Depends(
-        get_db
-    ),
 ):
 
-    payload = decode_token(
-        credentials.credentials
+    token = credentials.credentials
+
+    payload = decode_access_token(
+        token
     )
 
-    if not payload:
+    if payload is None:
 
         raise HTTPException(
-            status_code=401,
-            detail="Invalid token",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
         )
 
     current_user.set(
         payload
     )
 
-    username = payload.get(
-        "username"
-    )
-
-    repo = UserRepository(db)
-
-    user = repo.get_by_username(
-        username
-    )
-
-    if not user:
-
-        raise HTTPException(
-            status_code=401,
-            detail="User not found",
-        )
-
-    return user
+    return payload

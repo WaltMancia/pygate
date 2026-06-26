@@ -6,10 +6,6 @@ from app.core.request_context import (
     current_user,
 )
 
-from starlette.requests import (
-    Request,
-)
-
 
 class ProxyService:
 
@@ -22,37 +18,38 @@ class ProxyService:
         trace_id=None,
     ):
 
-    if trace_id:
+        headers = headers or {}
 
-        headers[
-            "X-Trace-Id"
-        ] = trace_id
+        user = current_user.get()
 
-    user = current_user.get()
+        if user:
 
-    headers = headers or {}
+            if user.get("sub") is not None:
+                headers["X-User-Id"] = str(
+                    user.get("sub")
+                )
 
-    if user:
+            if user.get("username"):
+                headers["X-Username"] = user.get(
+                    "username"
+                )
 
-        headers["X-User-Id"] = str(
-            user.get("sub")
+            if user.get("role"):
+                headers["X-Role"] = user.get(
+                    "role"
+                )
+
+        if trace_id:
+            headers["X-Trace-Id"] = trace_id
+
+        response = await http_client.request(
+            method=method,
+            url=url,
+            headers=headers,
+            content=body,
         )
 
-        headers["X-Username"] = (
-            user.get("username")
-        )
-
-        headers["X-Role"] = (
-            user.get("role")
-        )
-    response = await http_client.request(
-        method=method,
-        url=url,
-        headers=headers,
-        content=body,
-    )
-
-    return response
+        return response
 
     @staticmethod
     async def health_check(
@@ -65,10 +62,7 @@ class ProxyService:
                 f"{url}/health"
             )
 
-            return (
-                response.status_code
-                == 200
-            )
+            return response.status_code == 200
 
         except Exception:
 
