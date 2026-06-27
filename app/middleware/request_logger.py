@@ -24,11 +24,11 @@ class RequestLoggerMiddleware(
             uuid.uuid4()
         )
 
-        start = time.time()
-
         request.state.trace_id = (
             trace_id
         )
+
+        start = time.time()
 
         response = await call_next(
             request

@@ -20,6 +20,7 @@ class MetricsService:
         cls,
     ):
         cls.requests += 1
+        REQUEST_COUNTER.inc()
 
     @classmethod
     def increment_proxied(
@@ -32,9 +33,11 @@ class MetricsService:
         cls,
     ):
         cls.cache_hits += 1
+        CACHE_HITS.inc()
 
     @classmethod
     def increment_cache_miss(
         cls,
     ):
         cls.cache_misses += 1
+        CACHE_MISSES.inc()
