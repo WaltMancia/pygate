@@ -1,50 +1,26 @@
-from fastapi import (
-    Header,
-    HTTPException,
-)
+from fastapi import Depends
 
 from sqlalchemy.orm import Session
 
-from app.db.session import (
-    SessionLocal,
+from app.db.session import get_db
+
+from app.repositories.api_key_repository import (
+    ApiKeyRepository,
 )
 
-from app.models.api_key import (
-    ApiKey,
+from app.services.api_key_service import (
+    ApiKeyService,
 )
 
 
-def validate_api_key(
-    x_api_key: str = Header(
-        default=None
-    ),
+def get_api_key_service(
+    db: Session = Depends(get_db),
 ):
 
-    if not x_api_key:
-
-        raise HTTPException(
-            status_code=401,
-            detail="API Key required",
-        )
-
-    db: Session = SessionLocal()
-
-    key = (
-        db.query(ApiKey)
-        .filter(
-            ApiKey.api_key
-            == x_api_key
-        )
-        .first()
+    repository = ApiKeyRepository(
+        db
     )
 
-    db.close()
-
-    if not key:
-
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid API Key",
-        )
-
-    return key
+    return ApiKeyService(
+        repository
+    )
