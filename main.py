@@ -44,6 +44,10 @@ from app.api.routes.prometheus import (
     router as prometheus_router,
 )
 
+from app.api.routes.api_keys import (
+    router as api_key_router,
+)
+
 configure_logging()
 
 app = FastAPI(
@@ -85,4 +89,7 @@ app.include_router(
 
 app.include_router(
     prometheus_router,
+)
+app.include_router(
+    api_key_router
 )
