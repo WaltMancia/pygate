@@ -24,20 +24,38 @@ class ProxyService:
 
         if user:
 
-            if user.get("sub") is not None:
-                headers["X-User-Id"] = str(
-                    user.get("sub")
+            auth_type = user.get(
+                "auth_type",
+                "jwt",
+            )
+
+            headers["X-Auth-Type"] = auth_type
+
+            if auth_type == "api_key":
+
+                headers["X-Api-Owner"] = user.get(
+                    "owner"
                 )
 
-            if user.get("username"):
-                headers["X-Username"] = user.get(
-                    "username"
-                )
+            else:
 
-            if user.get("role"):
-                headers["X-Role"] = user.get(
-                    "role"
-                )
+                if user.get("sub"):
+
+                    headers["X-User-Id"] = str(
+                        user["sub"]
+                    )
+
+                if user.get("username"):
+
+                    headers["X-Username"] = (
+                        user["username"]
+                    )
+
+                if user.get("role"):
+
+                    headers["X-Role"] = (
+                        user["role"]
+                    )
 
         if trace_id:
             headers["X-Trace-Id"] = trace_id
