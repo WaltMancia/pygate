@@ -48,6 +48,10 @@ from app.api.routes.api_keys import (
     router as api_key_router,
 )
 
+from app.middleware.api_key_auth import (
+    ApiKeyAuthMiddleware,
+)
+
 configure_logging()
 
 app = FastAPI(
@@ -92,4 +96,16 @@ app.include_router(
 )
 app.include_router(
     api_key_router
+)
+
+app.add_middleware(
+    ApiKeyAuthMiddleware,
+)
+
+app.add_middleware(
+    RequestLoggerMiddleware,
+)
+
+app.add_middleware(
+    RateLimitMiddleware,
 )
