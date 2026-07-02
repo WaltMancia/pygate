@@ -6,6 +6,20 @@ from app.core.request_context import (
     current_user,
 )
 
+import time
+
+from app.db.session import (
+    SessionLocal,
+)
+
+from app.repositories.gateway_analytics_repository import (
+    GatewayAnalyticsRepository,
+)
+
+from app.services.gateway_analytics_service import (
+    GatewayAnalyticsService,
+)
+
 
 class ProxyService:
 
