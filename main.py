@@ -4,6 +4,10 @@ from app.core.config import (
     settings,
 )
 
+from app.middleware.authorization import (
+    AuthorizationMiddleware,
+)
+
 from app.core.logger import (
     configure_logging,
 )
@@ -108,4 +112,8 @@ app.add_middleware(
 
 app.add_middleware(
     RateLimitMiddleware,
+)
+
+app.add_middleware(
+    AuthorizationMiddleware,
 )
