@@ -33,12 +33,22 @@ class GatewayAnalyticsService:
     ):
 
         return {
+
             "requests":
                 self.repository.total_requests(),
 
             "average_latency":
-                self.repository.average_latency(),
+                round(
+                    self.repository.average_latency(),
+                    2,
+                ),
+
+            "errors":
+                self.repository.total_errors(),
 
             "top_endpoints":
                 self.repository.top_endpoints(),
+
+            "services":
+                self.repository.requests_by_service(),
         }

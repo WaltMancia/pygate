@@ -70,3 +70,49 @@ class GatewayAnalyticsRepository:
             .limit(limit)
             .all()
         )
+
+    def total_errors(
+        self,
+    ):
+
+        return (
+            self.db.query(
+                GatewayAnalytics
+            )
+            .filter(
+                GatewayAnalytics.status_code >= 400
+            )
+            .count()
+        )
+
+    def requests_by_service(
+        self,
+    ):
+
+        return (
+            self.db.query(
+                GatewayAnalytics.service,
+                func.count().label("total"),
+            )
+            .group_by(
+                GatewayAnalytics.service
+            )
+            .all()
+        )
+
+    def average_latency_by_service(
+        self,
+    ):
+
+        return (
+            self.db.query(
+                GatewayAnalytics.service,
+                func.avg(
+                    GatewayAnalytics.latency
+                ),
+            )
+            .group_by(
+                GatewayAnalytics.service
+            )
+            .all()
+        )
