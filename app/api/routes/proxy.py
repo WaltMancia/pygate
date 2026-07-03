@@ -1,36 +1,31 @@
+import time
+
 from fastapi import (
     APIRouter,
-    Request,
+    Depends,
     HTTPException,
+    Request,
+    Response,
 )
 
-from fastapi.responses import (
-    Response,
+from app.core.upstreams import (
+    UPSTREAMS,
 )
 
 from app.services.proxy_service import (
     ProxyService,
 )
 
-from app.services.upstream_service import (
-    UpstreamServiceManager,
+from app.services.gateway_analytics_service import (
+    GatewayAnalyticsService,
 )
 
-from app.services.circuit_breaker import (
-    CircuitBreaker,
-)
-
-from app.services.cache_service import (
-    CacheService,
-)
-
-from app.services.metrics_service import (
-    MetricsService,
+from app.api.dependencies.analytics import (
+    get_gateway_analytics_service,
 )
 
 router = APIRouter(
-    prefix="/proxy",
-    tags=["Proxy"],
+    tags=["Gateway"],
 )
 
 
@@ -42,113 +37,81 @@ router = APIRouter(
         "PUT",
         "PATCH",
         "DELETE",
+        "OPTIONS",
     ],
 )
-async def proxy_request(
+async def proxy(
     service: str,
     path: str,
     request: Request,
+    analytics: GatewayAnalyticsService = Depends(
+        get_gateway_analytics_service,
+    ),
 ):
 
-    MetricsService.increment_requests()
-
-    upstream = (
-        UpstreamServiceManager
-        .get_service(service)
+    upstream = UPSTREAMS.get(
+        service
     )
 
-    if not upstream:
+    if upstream is None:
 
         raise HTTPException(
             status_code=404,
             detail="Service not found",
         )
 
-    if CircuitBreaker.is_open(
-        service
-    ):
-
-        raise HTTPException(
-            status_code=503,
-            detail="Circuit breaker open",
-        )
-
-    cache_key = (
-        f"{service}:{path}"
+    target_url = (
+        f"{upstream}/{path}"
     )
-
-    if request.method == "GET":
-
-        cached = (
-            CacheService.get(
-                cache_key
-            )
-        )
-
-        if cached:
-
-            MetricsService.increment_cache_hit()
-
-            return Response(
-                content=cached,
-                media_type="application/json",
-            )
-
-        MetricsService.increment_cache_miss()
 
     body = await request.body()
 
-    try:
+    trace_id = getattr(
+        request.state,
+        "trace_id",
+        None,
+    )
 
-        response = (
-            await ProxyService.forward(
-                method=request.method,
-                url=f"{upstream}/{path}",
-                headers=dict(
-                    request.headers
-                ),
-                body=body,
-            )
-        )
+    started = time.perf_counter()
 
-    except Exception:
+    response = await ProxyService.forward(
+        method=request.method,
+        url=target_url,
+        headers=dict(request.headers),
+        body=body,
+        trace_id=trace_id,
+    )
 
-        CircuitBreaker.record_failure(
-            service
-        )
+    latency = (
+        time.perf_counter()
+        - started
+    ) * 1000
 
-        raise HTTPException(
-            status_code=502,
-            detail="Upstream service unavailable",
-        )
+    analytics.register(
+        service=service,
+        endpoint=request.url.path,
+        method=request.method,
+        status_code=response.status_code,
+        latency=latency,
+    )
 
-    MetricsService.increment_proxied()
+    excluded_headers = {
+        "content-length",
+        "transfer-encoding",
+        "connection",
+        "content-encoding",
+    }
 
-    if response.status_code >= 500:
-
-        CircuitBreaker.record_failure(
-            service
-        )
-
-    else:
-
-        CircuitBreaker.record_success(
-            service
-        )
-
-    if (
-        request.method == "GET"
-        and response.status_code == 200
-    ):
-
-        CacheService.set(
-            cache_key,
-            response.text,
-        )
+    headers = {
+        key: value
+        for key, value in response.headers.items()
+        if key.lower() not in excluded_headers
+    }
 
     return Response(
         content=response.content,
         status_code=response.status_code,
+        headers=headers,
         media_type=response.headers.get(
             "content-type"
         ),
