@@ -56,6 +56,10 @@ from app.middleware.api_key_auth import (
     ApiKeyAuthMiddleware,
 )
 
+from app.api.routes.analytics import (
+    router as analytics_router,
+)
+
 configure_logging()
 
 app = FastAPI(
@@ -116,4 +120,8 @@ app.add_middleware(
 
 app.add_middleware(
     AuthorizationMiddleware,
+)
+
+app.include_router(
+    analytics_router
 )
