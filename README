@@ -1,0 +1,434 @@
+# 🚀 PyGate
+
+> Enterprise API Gateway desarrollado desde cero con **Python**, **FastAPI** y **Clean Architecture**.
+
+PyGate es un API Gateway moderno inspirado en soluciones como **Kong**, **Traefik**, **NGINX Gateway** y **Spring Cloud Gateway**. Su objetivo es centralizar el acceso a múltiples microservicios proporcionando autenticación, autorización, balanceo de carga, observabilidad, rate limiting y herramientas de administración.
+
+---
+
+# 📖 Tabla de Contenido
+
+- Características
+- Arquitectura
+- Tecnologías
+- Estructura del Proyecto
+- Instalación
+- Configuración
+- Variables de Entorno
+- Base de Datos
+- Migraciones
+- Ejecución
+- API
+- Seguridad
+- Roadmap
+- Capturas
+- Contribuciones
+- Licencia
+
+---
+
+# ✨ Características
+
+## Gateway
+
+- Reverse Proxy
+- Dynamic Routing
+- HTTP Forwarding
+- Trace ID Propagation
+- Request Context
+- Upstream Health Checks
+
+---
+
+## Seguridad
+
+- JWT Authentication
+- API Key Authentication
+- Role Based Access Control (RBAC)
+- Route Security Policies
+- Password Hashing
+- Authentication Middleware
+- Authorization Middleware
+
+---
+
+## Resiliencia
+
+- Rate Limiting
+- Circuit Breaker
+- Request Timeout
+- Retry Ready Architecture
+
+---
+
+## Observabilidad
+
+- Structured Logging
+- Prometheus Metrics
+- Request Analytics
+- Trace IDs
+- Health Checks
+- Metrics Endpoint
+
+---
+
+## Administración
+
+- API Key Management
+- Gateway Analytics
+- Admin Endpoints
+
+---
+
+# 🏛 Arquitectura
+
+```
+                        Clients
+                           │
+            ┌──────────────┴──────────────┐
+            │                             │
+         JWT Token                   API Key
+            │                             │
+            └──────────────┬──────────────┘
+                           │
+                    Request Logger
+                           │
+                           ▼
+                  Authentication Layer
+                           │
+                           ▼
+                  Authorization Layer
+                           │
+                           ▼
+                     Rate Limiter
+                           │
+                           ▼
+                    Circuit Breaker
+                           │
+                           ▼
+                       Proxy Layer
+                           │
+                           ▼
+                    Load Balancer
+                           │
+          ┌────────────────┼────────────────┐
+          ▼                ▼                ▼
+     Users Service    Orders Service   Products Service
+```
+
+---
+
+# 🛠 Tecnologías
+
+| Tecnología   | Uso                |
+| ------------ | ------------------ |
+| Python 3.13  | Lenguaje           |
+| FastAPI      | API Framework      |
+| SQLAlchemy 2 | ORM                |
+| Alembic      | Migraciones        |
+| MySQL        | Base de Datos      |
+| Redis        | Caché / Rate Limit |
+| HTTPX        | Cliente HTTP       |
+| Prometheus   | Métricas           |
+| Uvicorn      | Servidor ASGI      |
+| Pydantic v2  | Validación         |
+| JWT          | Autenticación      |
+
+---
+
+# 📂 Estructura
+
+```
+pygate/
+
+├── app/
+│
+├── api/
+│   ├── dependencies/
+│   └── routes/
+│
+├── core/
+│
+├── db/
+│
+├── middleware/
+│
+├── models/
+│
+├── repositories/
+│
+├── schemas/
+│
+├── services/
+│
+├── gateway/
+│
+├── utils/
+│
+├── migrations/
+│
+├── scripts/
+│
+├── tests/
+│
+├── .env
+│
+├── requirements.txt
+│
+└── main.py
+```
+
+---
+
+# ⚙ Instalación
+
+Clonar el proyecto
+
+```bash
+git clone https://github.com/TU-USUARIO/pygate.git
+
+cd pygate
+```
+
+Crear entorno virtual
+
+```bash
+python -m venv .venv
+```
+
+Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+Linux
+
+```bash
+source .venv/bin/activate
+```
+
+Instalar dependencias
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# 🔧 Variables de Entorno
+
+Crear un archivo `.env`
+
+```env
+APP_NAME=PyGate
+
+DEBUG=True
+
+ENVIRONMENT=development
+
+JWT_SECRET=super-secret-key
+
+JWT_ALGORITHM=HS256
+
+DATABASE_URL=mysql+pymysql://root:password@localhost/pygate
+
+REDIS_HOST=localhost
+
+REDIS_PORT=6379
+```
+
+---
+
+# 🗄 Base de Datos
+
+Crear la base de datos
+
+```sql
+CREATE DATABASE pygate;
+```
+
+---
+
+# 📦 Migraciones
+
+Crear migración
+
+```bash
+alembic revision --autogenerate -m "description"
+```
+
+Aplicar migraciones
+
+```bash
+alembic upgrade head
+```
+
+---
+
+# 🌱 Seed Inicial
+
+Roles y permisos
+
+```bash
+python -m scripts.seed_rbac
+```
+
+Usuario administrador
+
+```bash
+python -m scripts.create_admin
+```
+
+---
+
+# ▶ Ejecutar
+
+```bash
+uvicorn main:app --reload
+```
+
+Swagger
+
+```
+http://localhost:8000/docs
+```
+
+Prometheus
+
+```
+http://localhost:8000/metrics
+```
+
+Health
+
+```
+http://localhost:8000/health
+```
+
+---
+
+# 🔐 Seguridad
+
+PyGate soporta dos mecanismos de autenticación.
+
+## JWT
+
+```
+Authorization: Bearer <token>
+```
+
+## API Key
+
+```
+X-API-Key: xxxxxxxxxxxxxxxxx
+```
+
+---
+
+# 📈 Funcionalidades
+
+- JWT
+- API Keys
+- RBAC
+- Middleware
+- Request Context
+- Reverse Proxy
+- Rate Limiter
+- Circuit Breaker
+- Metrics
+- Analytics
+- Prometheus
+- Health Checks
+
+---
+
+# 📊 Roadmap
+
+## Completado
+
+- [x] Reverse Proxy
+- [x] JWT Authentication
+- [x] API Keys
+- [x] RBAC
+- [x] Request Logger
+- [x] Metrics
+- [x] Analytics
+- [x] Prometheus
+- [x] Health Checks
+
+## En Desarrollo
+
+- [ ] Service Discovery
+- [ ] Distributed Cache
+- [ ] Dashboard Web
+- [ ] Retry Policies
+- [ ] Timeouts
+- [ ] Load Balancer Algorithms
+- [ ] Configuration Dashboard
+- [ ] OpenTelemetry
+- [ ] Docker Compose
+- [ ] Kubernetes Deployment
+
+---
+
+# 📷 Capturas
+
+Próximamente.
+
+---
+
+# 🧪 Testing
+
+Ejecutar pruebas
+
+```bash
+pytest
+```
+
+Cobertura
+
+```bash
+pytest --cov=app
+```
+
+---
+
+# 🤝 Contribuciones
+
+Las contribuciones son bienvenidas.
+
+1. Fork del proyecto.
+2. Crear una rama.
+
+```
+feature/my-feature
+```
+
+3. Commit.
+
+```
+git commit -m "feat: add feature"
+```
+
+4. Push.
+
+```
+git push origin feature/my-feature
+```
+
+5. Abrir un Pull Request.
+
+---
+
+# 📄 Licencia
+
+MIT License
+
+---
+
+# 👨‍💻 Autor
+
+Walter Mancia
+
+Full Stack Developer • DevSecOps • Cybersecurity
